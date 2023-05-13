@@ -2,6 +2,8 @@ from bs4 import BeautifulSoup
 from urllib.request import urlopen
 import ssl
 import csv
+import pandas as pd
+import sqlite3
 
 # Ignore SSL certificate errors
 ctx = ssl.create_default_context()
@@ -30,3 +32,14 @@ with open("top_100.csv", "w", newline="") as file:
     writer.writerow(["Ranking", "Artist", "Song"])
     for row in list_items:
         writer.writerow(row)
+
+df = pd.read_csv("top_100.csv")
+pd.set_option("display.max_columns", None)
+#print(df)
+filtered_df = df.loc[(df["Ranking"] <= 10)]
+filter_df = df.loc[(df["Artist"] == "Morgan Wallen")]
+filtered_df.to_csv('top_10.csv', index=False)
+
+con = sqlite3.connect("billboard.db")
+df.to_sql('top_100', con, if_exists='replace', index=False)
+con.close()
